@@ -11,6 +11,12 @@ regex = '^(\w|\.|\_|\-)+[@](\w|\_|\-|\.)+[.]\w{2,3}$'
 
 app = Flask(__name__)
 
+
+@app.route("/", methods=['GET'])
+def home():
+    str = "Usage:\nURL/add/name/email/dob\nURL/registered\nURL/wish/email"
+    return str
+
 @app.route("/wish/<string:email>", methods=['GET'])
 def email_a_birthday_wish(email, msg):
     if(re.search(regex, email)):
@@ -76,5 +82,5 @@ def checkForBirthdays():
 
 
 if __name__ == "__main__":
-    app.run()
+    app.run(threaded=True, port=5000)
 
