@@ -46,8 +46,7 @@ def reg():
         namesStr+= name + ","
     return namesStr
 
-if __name__ == "__main__":
-    app.run()
+
     
 def get_contacts(filename):
     names = []
@@ -76,5 +75,6 @@ def checkForBirthdays():
             email_a_birthday_wish(email,msg)
 
 
-
+if __name__ == "__main__":
+    app.run()
 
