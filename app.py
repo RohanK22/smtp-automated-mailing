@@ -1,42 +1,64 @@
 from flask import Flask
 import smtplib 
 import re
-import threading
 import datetime
-import time
 import os
 # https://stackoverflow.com/questions/21214270/how-to-schedule-a-function-to-run-every-hour-on-flask
 from apscheduler.schedulers.background import BackgroundScheduler
 import pymongo
+import pprint
 
 app = Flask(__name__)
 mongo_uri = os.environ.get('MONGO_URI')
 client = pymongo.MongoClient(mongo_uri)
 db = client.test
 
-birthdays = db.create_collection('birthdays')
-
+# Getting the collection birthdays
+birthdays = None
+if(not db.collection_names().__contains__('birthdays')):
+   birthdays = db.create_collection('birthdays')
+else:
+   birthdays = db.birthdays
 gmailaddress = "rohan.kumar.smtp@gmail.com"
 gmailpassword = "Smtp123456"
 regex = '^(\w|\.|\_|\-)+[@](\w|\_|\-|\.)+[.]\w{2,3}$'
 
-
-# Schedule task 
-def test():
-   print("hello")
-
-scheduler  = BackgroundScheduler()
-scheduler.add_job(func=test, trigger="interval", seconds=5)
-scheduler.start()
-
-
-
 @app.route("/", methods=['GET'])
 def home():
-    str = "Usage:\nURL/add/name/email/dob\nURL/registered\nURL/wish/email"
+    str = "<html><body><h1>Automated Birthday Wish API Usage:</h1><p>Adding person to birthday list: BaseURL/add/name/email/dob('dd-mm')</p><p>Seeing registerd birthdays: BaseURL/registered</p></body></html>"
     return str
 
-@app.route("/wish/<string:email>", methods=['GET'])
+@app.route("/add/<string:name>/<string:email>/<string:dob>", methods=['GET'])
+def add(name, email, dob):
+   reg = re.compile(regex)
+   if(not reg.match(email)):
+      return "Invalid Email"
+   bday = {
+      "name": name,
+      "email": email,
+      "dob": dob
+   }
+   result = birthdays.insert_one(bday)
+   res = {
+      "result": result.__str__()
+   }
+   return res
+
+@app.route("/registered", methods=['GET'])
+def reg():
+   results = birthdays.find()
+   l = list(results)
+   d = {}
+   n = 0
+   for i in l:
+      i["_id"] = n
+      i["email"] = "Hidden"
+      d[str(n)] = i
+      n+=1
+   return d
+    
+
+
 def email_a_birthday_wish(email, msg):
     if(re.search(regex, email)):
         print("Going to wish " + email)
@@ -50,44 +72,18 @@ def email_a_birthday_wish(email, msg):
     print("Success!")
     return "Wished " + email + "!"
 
-@app.route("/add/<string:name>/<string:email>/<string:dob>", methods=['GET'])
-def add(name, email, dob):
-    file_object = open('contacts.txt', 'a')
-    file_object.write("\n" + name + "|" + email + "|" + dob)
-    file_object.close()
-    return "Added successfully!"
-
-@app.route("/start", methods=['GET'])
-def start():
-    print("Started Birthday Monitoring")
-    setInterval(checkForBirthdays, 86400)
-    return "Voila!"
-
-@app.route("/registered", methods=['GET'])
-def reg():
-    names, emails, birthdaysWithMonth = get_contacts("contacts.txt")
-    namesStr = ""
-    for name in names:
-        namesStr+= name + ","
-    return namesStr
-
-
     
 def get_contacts(filename):
-    names = []
-    emails = []
-    birthdaysWithMonth = []
-    with open(filename, mode='r', encoding='utf-8') as contacts_file:
-        for a_contact in contacts_file:
-            names.append(a_contact.split("|")[0])
-            emails.append(a_contact.split("|")[1])
-            birthdaysWithMonth.append(a_contact.split("|")[2])
-    return names, emails, birthdaysWithMonth
-
-def setInterval(func, time):
-    e = threading.Event()
-    while not e.wait(time):
-        func()
+   names = []
+   emails = []
+   birthdaysWithMonth = []
+   res = birthdays.find()
+   l = list(res)
+   for item in l:
+      names.append(item["name"])
+      emails.append(item["email"])
+      birthdaysWithMonth.append(item["dob"])
+   return names, emails, birthdaysWithMonth
         
 def checkForBirthdays():
     dt = datetime.datetime.now()
@@ -99,6 +95,10 @@ def checkForBirthdays():
             msg = "Happy birthday " + name +  "! Have a great day! - From Rohan"
             email_a_birthday_wish(email,msg)
 
+# The cron job once every day
+scheduler  = BackgroundScheduler()
+scheduler.add_job(func=checkForBirthdays, trigger="interval", seconds=86400)
+scheduler.start()
 
 if __name__ == '__main__':
    app.run(debug=True)
