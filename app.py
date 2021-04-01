@@ -4,12 +4,31 @@ import re
 import threading
 import datetime
 import time
+import os
+# https://stackoverflow.com/questions/21214270/how-to-schedule-a-function-to-run-every-hour-on-flask
+from apscheduler.schedulers.background import BackgroundScheduler
+import pymongo
+
+app = Flask(__name__)
+mongo_uri = os.environ.get('MONGO_URI')
+client = pymongo.MongoClient(mongo_uri)
+db = client.test
+
+birthdays = db.create_collection('birthdays')
 
 gmailaddress = "rohan.kumar.smtp@gmail.com"
 gmailpassword = "Smtp123456"
 regex = '^(\w|\.|\_|\-)+[@](\w|\_|\-|\.)+[.]\w{2,3}$'
 
-app = Flask(__name__)
+
+# Schedule task 
+def test():
+   print("hello")
+
+scheduler  = BackgroundScheduler()
+scheduler.add_job(func=test, trigger="interval", seconds=5)
+scheduler.start()
+
 
 
 @app.route("/", methods=['GET'])
@@ -81,6 +100,6 @@ def checkForBirthdays():
             email_a_birthday_wish(email,msg)
 
 
-if __name__ == "__main__":
-    app.run(threaded=True, port=5000)
+if __name__ == '__main__':
+   app.run(debug=True)
 
