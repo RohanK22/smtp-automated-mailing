@@ -38,6 +38,8 @@ def add(name, email, dob):
       "email": email,
       "dob": dob
    }
+   if(birthdays.find({"name": name}).count() != 0):
+      return "Person already in the database"
    result = birthdays.insert_one(bday)
    res = {
       "result": result.__str__()
