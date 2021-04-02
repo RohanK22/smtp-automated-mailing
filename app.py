@@ -90,6 +90,8 @@ def get_contacts(filename):
 def checkForBirthdays():
     dt = datetime.datetime.now()
     print("Checking for birthdays on ", dt)
+    msg = "Running cron job for day: " + str(dt.strftime)
+    email_a_birthday_wish(gmailaddress,msg)
     names, emails, birthdaysWithMonth = get_contacts("contacts.txt")
     for name, email, birthdayWithMonth in zip(names, emails, birthdaysWithMonth):
         if(dt.day == int(birthdayWithMonth.split("-")[0]) and dt.month == int(birthdayWithMonth.split("-")[1])):
@@ -99,7 +101,7 @@ def checkForBirthdays():
 
 # The cron job once every day
 scheduler  = BackgroundScheduler()
-scheduler.add_job(func=checkForBirthdays, trigger="interval", seconds=86400)
+scheduler.add_job(func=checkForBirthdays, trigger="interval", minutes=1)
 scheduler.start()
 
 if __name__ == '__main__':
