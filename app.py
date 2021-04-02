@@ -90,7 +90,7 @@ def get_contacts(filename):
 def checkForBirthdays():
     dt = datetime.datetime.now()
     print("Checking for birthdays on ", dt)
-    msg = "Running cron job for day: " + str(dt)
+    msg = "Running cron job for day: " + str(dt.date)
     email_a_birthday_wish(gmailaddress,msg)
     names, emails, birthdaysWithMonth = get_contacts("contacts.txt")
     for name, email, birthdayWithMonth in zip(names, emails, birthdaysWithMonth):
