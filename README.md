@@ -11,4 +11,4 @@ Add a person to the mailing list using: https://birthday-wisher-rohan.herokuapp.
 # Local Usage(PS)
     powershell -ExecutionPolicy Bypass -File venv\Scripts\Activate.ps1
     $env:FLASK_APP = "app.py"
-    python -m flask run
+    flask run
