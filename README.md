@@ -9,6 +9,6 @@ Look at the pre-registered users: https://birthday-wisher-rohan.herokuapp.com/re
 Add a person to the mailing list using: https://birthday-wisher-rohan.herokuapp.com/add/name/email/birthday(in format('dd-mm'))
 
 # Local Usage(PS)
-    powershell -ExecutionPolicy Bypass -File \Scripts\activate.ps1
+    powershell -ExecutionPolicy Bypass -File venv\Scripts\Activate.ps1
     $env:FLASK_APP = "app.py"
     python -m flask run
