@@ -5,10 +5,12 @@ import datetime
 import os
 # https://stackoverflow.com/questions/21214270/how-to-schedule-a-function-to-run-every-hour-on-flask
 from apscheduler.schedulers.background import BackgroundScheduler
+from apscheduler.scheduler import Scheduler
 import pymongo
 import pprint
 
 app = Flask(__name__)
+cron = Scheduler
 mongo_uri = os.environ.get('MONGO_URI')
 client = pymongo.MongoClient(mongo_uri)
 db = client.test

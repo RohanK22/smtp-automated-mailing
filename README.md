@@ -7,3 +7,8 @@ The server also has a few API end points for adding and displaying existing user
 Look at the pre-registered users: https://birthday-wisher-rohan.herokuapp.com/registered
 
 Add a person to the mailing list using: https://birthday-wisher-rohan.herokuapp.com/add/name/email/birthday(in format('dd-mm'))
+
+# Local Usage(PS)
+    powershell -ExecutionPolicy Bypass -File \Scripts\activate.ps1
+    $env:FLASK_APP = "app.py"
+    python -m flask run
