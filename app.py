@@ -91,7 +91,7 @@ def checkForBirthdays():
     dt = datetime.datetime.now()
     print("Checking for birthdays on ", dt)
     msg = "Running cron job for day: " + str(dt.date)
-    email_a_birthday_wish(gmailaddress,msg)
+    email_a_birthday_wish(gmailaddress,"Checking for birthdays on " + str(dt))
     names, emails, birthdaysWithMonth = get_contacts("contacts.txt")
     for name, email, birthdayWithMonth in zip(names, emails, birthdaysWithMonth):
         if(dt.day == int(birthdayWithMonth.split("-")[0]) and dt.month == int(birthdayWithMonth.split("-")[1])):
