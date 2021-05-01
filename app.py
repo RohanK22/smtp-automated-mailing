@@ -101,9 +101,9 @@ def checkForBirthdays():
 
 # The cron job once every day
 scheduler  = BackgroundScheduler(daemon=True)
-scheduler.add_job(func=checkForBirthdays, trigger="interval", hours=24)
-scheduler.start()
+scheduler.add_job(func=checkForBirthdays, trigger="interval", days=1)
 
 if __name__ == '__main__':
+   scheduler.start()
    app.run(debug=True)
 
