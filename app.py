@@ -74,7 +74,7 @@ class thread(threading.Thread):
          email_a_birthday_wish(gmailaddress, "Cron job started")
          # The cron job once every day
          scheduler  = BackgroundScheduler()
-         scheduler.add_job(checkForBirthdays, trigger="interval", seconds=30, misfire_grace_time=60, coalesce=True)
+         scheduler.add_job(checkForBirthdays, trigger="interval", days=1, misfire_grace_time=60, coalesce=True)
          print(str(scheduler.get_jobs()))
          scheduler.start()
          print('Press Ctrl+{0} to exit'.format('Break' if os.name == 'nt' else 'C'))
