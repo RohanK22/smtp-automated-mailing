@@ -4,6 +4,7 @@ import re
 import datetime
 import os
 import time
+import threading
 # https://stackoverflow.com/questions/21214270/how-to-schedule-a-function-to-run-every-hour-on-flask
 from apscheduler.schedulers.background import BackgroundScheduler
 import pymongo
@@ -60,24 +61,39 @@ def reg():
       n+=1
    return d
    
+# https://www.geeksforgeeks.org/how-to-create-a-new-thread-in-python/
+class thread(threading.Thread): 
+   def __init__(self, thread_name, thread_ID): 
+      threading.Thread.__init__(self) 
+      self.thread_name = thread_name 
+      self.thread_ID = thread_ID 
+
+   # helper function to execute the threads
+   def run(self): 
+         print(str(self.thread_name) +" "+ str(self.thread_ID));
+         email_a_birthday_wish(gmailaddress, "Cron job started")
+         # The cron job once every day
+         scheduler  = BackgroundScheduler()
+         scheduler.add_job(checkForBirthdays, trigger="interval", seconds=30, misfire_grace_time=60, coalesce=True)
+         print(str(scheduler.get_jobs()))
+         scheduler.start()
+         print('Press Ctrl+{0} to exit'.format('Break' if os.name == 'nt' else 'C'))
+
+         try:
+            # This is here to simulate application activity (which keeps the main thread alive).
+            while True:
+               time.sleep(5)
+         except (KeyboardInterrupt, SystemExit):
+            # Not strictly necessary if daemonic mode is enabled but should be done if possible
+            scheduler.shutdown() 
+
 #https://stackoverflow.com/questions/29223222/how-do-i-schedule-an-interval-job-with-apscheduler
 @app.route("/start", methods=['GET'])
 def start():
-   email_a_birthday_wish(gmailaddress, "Cron job started")
-   # The cron job once every day
-   scheduler  = BackgroundScheduler()
-   scheduler.add_job(checkForBirthdays, trigger="interval", seconds=30, misfire_grace_time=60, coalesce=True)
-   print(str(scheduler.get_jobs()))
-   scheduler.start()
-   print('Press Ctrl+{0} to exit'.format('Break' if os.name == 'nt' else 'C'))
-
-   try:
-      # This is here to simulate application activity (which keeps the main thread alive).
-      while True:
-         time.sleep(5)
-   except (KeyboardInterrupt, SystemExit):
-      # Not strictly necessary if daemonic mode is enabled but should be done if possible
-      scheduler.shutdown()
+   newThread = thread("Birthday hunting", 1000)
+   newThread.start()
+   
+   return "CRON started"
 
 
 def email_a_birthday_wish(email, msg):
