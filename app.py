@@ -3,6 +3,7 @@ import smtplib
 import re
 import datetime
 import os
+import time
 # https://stackoverflow.com/questions/21214270/how-to-schedule-a-function-to-run-every-hour-on-flask
 from apscheduler.schedulers.background import BackgroundScheduler
 import pymongo
@@ -58,7 +59,25 @@ def reg():
       d[str(n)] = i
       n+=1
    return d
-    
+   
+#https://stackoverflow.com/questions/29223222/how-do-i-schedule-an-interval-job-with-apscheduler
+@app.route("/start", methods=['GET'])
+def start():
+   email_a_birthday_wish(gmailaddress, "Cron job started")
+   # The cron job once every day
+   scheduler  = BackgroundScheduler()
+   scheduler.add_job(checkForBirthdays, trigger="interval", seconds=60, misfire_grace_time=60, coalesce=True)
+   print(str(scheduler.get_jobs()))
+   scheduler.start()
+   print('Press Ctrl+{0} to exit'.format('Break' if os.name == 'nt' else 'C'))
+
+   try:
+      # This is here to simulate application activity (which keeps the main thread alive).
+      while True:
+         time.sleep(5)
+   except (KeyboardInterrupt, SystemExit):
+      # Not strictly necessary if daemonic mode is enabled but should be done if possible
+      scheduler.shutdown()
 
 
 def email_a_birthday_wish(email, msg):
@@ -91,7 +110,7 @@ def checkForBirthdays():
     dt = datetime.datetime.now()
     print("Checking for birthdays on ", dt)
     msg = "Running cron job for day: " + str(dt.date)
-    email_a_birthday_wish(gmailaddress,"Checking for birthdays on " + str(dt))
+    email_a_birthday_wish(gmailaddress,msg)
     names, emails, birthdaysWithMonth = get_contacts("contacts.txt")
     for name, email, birthdayWithMonth in zip(names, emails, birthdaysWithMonth):
         if(dt.day == int(birthdayWithMonth.split("-")[0]) and dt.month == int(birthdayWithMonth.split("-")[1])):
@@ -99,11 +118,6 @@ def checkForBirthdays():
             msg = "Happy birthday " + name +  "! Have a great day! - From Rohan"
             email_a_birthday_wish(email,msg)
 
-# The cron job once every day
-scheduler  = BackgroundScheduler(daemon=True)
-scheduler.add_job(func=checkForBirthdays, trigger="interval", days=1)
-
 if __name__ == '__main__':
-   scheduler.start()
    app.run(debug=True)
 
