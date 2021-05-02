@@ -66,7 +66,7 @@ def start():
    email_a_birthday_wish(gmailaddress, "Cron job started")
    # The cron job once every day
    scheduler  = BackgroundScheduler()
-   scheduler.add_job(checkForBirthdays, trigger="interval", seconds=60, misfire_grace_time=60, coalesce=True)
+   scheduler.add_job(checkForBirthdays, trigger="interval", seconds=30, misfire_grace_time=60, coalesce=True)
    print(str(scheduler.get_jobs()))
    scheduler.start()
    print('Press Ctrl+{0} to exit'.format('Break' if os.name == 'nt' else 'C'))
@@ -109,8 +109,7 @@ def get_contacts(filename):
 def checkForBirthdays():
     dt = datetime.datetime.now()
     print("Checking for birthdays on ", dt)
-    msg = "Running cron job for day: " + str(dt.date)
-    email_a_birthday_wish(gmailaddress,msg)
+    email_a_birthday_wish(gmailaddress,"Running cron job for the day")
     names, emails, birthdaysWithMonth = get_contacts("contacts.txt")
     for name, email, birthdayWithMonth in zip(names, emails, birthdaysWithMonth):
         if(dt.day == int(birthdayWithMonth.split("-")[0]) and dt.month == int(birthdayWithMonth.split("-")[1])):
