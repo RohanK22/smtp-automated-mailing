@@ -8,7 +8,9 @@ import threading
 # https://stackoverflow.com/questions/21214270/how-to-schedule-a-function-to-run-every-hour-on-flask
 from apscheduler.schedulers.background import BackgroundScheduler
 import pymongo
+from apscheduler.schedulers.blocking import BlockingScheduler
 
+sched = BlockingScheduler()
 app = Flask(__name__)
 
 mongo_uri = os.environ.get('MONGO_URI')
@@ -90,8 +92,8 @@ class thread(threading.Thread):
 #https://stackoverflow.com/questions/29223222/how-do-i-schedule-an-interval-job-with-apscheduler
 @app.route("/start", methods=['GET'])
 def start():
-   newThread = thread("Birthday hunting", 1000)
-   newThread.start()
+   # newThread = thread("Birthday hunting", 1000)
+   # newThread.start()
    
    return "CRON started"
 
@@ -122,6 +124,7 @@ def get_contacts(filename):
       birthdaysWithMonth.append(item["dob"])
    return names, emails, birthdaysWithMonth
         
+@sched.scheduled_job('cron',day_of_week='mon-fri', hour=17) # 5 PM every weekday 
 def checkForBirthdays():
     dt = datetime.datetime.now()
     print("Checking for birthdays on ", dt)
@@ -132,6 +135,9 @@ def checkForBirthdays():
             print("It's " + name + " 's birthday!")
             msg = "Happy birthday " + name +  "! Have a great day! - From Rohan"
             email_a_birthday_wish(email,msg)
+
+# Starting the cron job
+sched.start()
 
 if __name__ == '__main__':
    app.run(debug=True)
