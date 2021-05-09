@@ -136,9 +136,8 @@ def checkForBirthdays():
             msg = "Happy birthday " + name +  "! Have a great day! - From Rohan"
             email_a_birthday_wish(email,msg)
 
-# Starting the cron job
-sched.start()
-
 if __name__ == '__main__':
+   # Starting the cron job
+   sched.start()
    app.run(debug=True)
 
