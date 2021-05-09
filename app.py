@@ -139,5 +139,6 @@ def checkForBirthdays():
 if __name__ == '__main__':
    # Starting the cron job
    sched.start()
+   # Run server
    app.run(debug=True)
 
